@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>계산기</title>
+    <link href="https://fonts.googleapis.com/css2?family=Arial:wght@400&display=swap" rel="stylesheet">
+    <style>
+        button:active {
+            background: darkgray;
+            border-top: 3px solid gray !important;
+            border-left: 3px solid gray !important;
+            border-right: 3px solid white !important;
+            border-bottom: 3px solid white !important;
+        }
+        .button:active{
+            background: darkgray;
+            border-top: 3px solid gray !important;
+            border-left: 3px solid gray !important;
+            border-right: 3px solid white !important;
+            border-bottom: 3px solid white !important;
+        }
+        body{
+            font-family: 'Arial', sans-serif;
+        }
+        *{
+            padding: 0;
+            margin:0;
+        }
+        .input-field {
+            width: calc(100% - 12px);
+            height: 40px;
+            font-size: 20px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 0;
+            border-top: 3px solid darkgray;
+            border-left: 3px solid darkgray;
+            border-right: 3px solid white;
+            border-bottom: 3px solid white;
+        }
+        .background{
+            width: 100vw;
+            height: 100vh;
+            background: gray;
+        }
+        .container{
+            width: 500px;
+            height: 600px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            background: lightgray;
+            border-top: 3px solid white;
+            border-left: 3px solid white;
+            border-right: 3px solid darkgray;
+            border-bottom: 3px solid darkgray;
+        }
+        .header{
+            width: calc(100% - 12px);
+            height: 40px;
+            background: darkblue;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+        }
+        .header>div{
+            gap: 5px;
+            display: flex;
+            box-sizing: border-box;
+        }
+        .header>div>button{
+            box-sizing: border-box;
+            width: 20px;
+            height: 20px;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            border: none;
+            border-radius: 0;
+            border-top: 3px solid white;
+            border-left: 3px solid white;
+            border-right: 3px solid darkgray;
+            border-bottom: 3px solid darkgray;
+        }
+        .body{
+            width: calc(100% - 4px);
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+        .body>div:nth-child(1){
+            width: 100%;
+            height: 30px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: start
+        }
+        .body>div:nth-child(1)>input{
+            box-sizing: border-box;
+            width: 20px;
+            height: 20px;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            border: none;
+            border-radius: 0;
+            border-top: 3px solid white;
+            border-left: 3px solid white;
+            border-right: 3px solid darkgray;
+            border-bottom: 3px solid darkgray;
+        }
+        .body>button{
+            padding: 5px;
+            border-top: 3px solid white;
+            border-left: 3px solid white;
+            border-right: 3px solid darkgray;
+            border-bottom: 3px solid darkgray;
+            margin-bottom: 10px;
+        }
+    </style>
+    <script>
+        let toggle = false;
+
+        function updateExpression(value) {
+            document.getElementById("expression").value += value;
+        }
+
+        function calculate() {
+            let expression = document.getElementById("expression").value;
+            try {
+                let result = evaluateExpression(expression);
+                document.getElementById("result").value = result;
+            } catch (e) {
+                document.getElementById("result").value = "오류: 잘못된 수식입니다";
+            }
+        }
+
+        function evaluateExpression(expression) {
+            let tokens = tokenize(expression);
+            let postfix = infixToPostfix(tokens);
+            return evaluatePostfix(postfix);
+        }
+
+        function tokenize(expression) {
+            let tokens = [];
+            let number = '';
+            for (let char of expression) {
+                if (char.match(/[0-9.]/)) {
+                    number += char;
+                } else {
+                    if (number) {
+                        tokens.push(number);
+                        number = '';
+                    }
+                    if (char.match(/[\+\-\*\/\(\)]/)) {
+                        tokens.push(char);
+                    }
+                }
+            }
+            if (number) {
+                tokens.push(number);
+            }
+            return tokens;
+        }
+
+        function infixToPostfix(tokens) {
+            let output = []; // 후위 표기법 수식을 저장할 배열
+            let operators = []; // 연산자를 저장할 스택
+            const precedence = { '+': 1, '-': 1, '*': 2, '/': 2 }; // 연산자 우선순위
+
+            for (let token of tokens) {
+                if (!isNaN(token)) {
+                    // 토큰이 숫자인 경우, 결과 배열에 추가
+                    output.push(token);
+                } else if (token === '(') {
+                    // 여는 괄호 '(': 연산자 스택에 추가
+                    operators.push(token);
+                } else if (token === ')') {
+                    // 닫는 괄호 ')': 여는 괄호 '('가 나올 때까지 연산자를 결과 배열에 추가
+                    while (operators.length && operators[operators.length - 1] !== '(') {
+                        output.push(operators.pop());
+                    }
+                    operators.pop(); // 여는 괄호 '('를 스택에서 제거
+                } else if (precedence[token]) {
+                    // 연산자 +, -, *, /인 경우
+                    // 현재 연산자보다 우선순위가 높은 연산자를 스택에서 결과 배열로 이동
+                    while (operators.length && precedence[operators[operators.length - 1]] >= precedence[token]) {
+                        output.push(operators.pop());
+                    }
+                    // 현재 연산자를 스택에 추가
+                    operators.push(token);
+                }
+            }
+
+            // 남아있는 모든 연산자를 결과 배열에 추가
+            while (operators.length) {
+                output.push(operators.pop());
+            }
+
+            return output; // 후위 표기법 수식 반환
+        }
+
+        function evaluatePostfix(postfix) {
+            let stack = []; // 후위 표기법 수식을 평가하기 위한 스택
+
+            for (let token of postfix) {
+                if (!isNaN(token)) {
+                    // 토큰이 숫자인 경우, 스택에 추가
+                    stack.push(parseFloat(token));
+                } else {
+                    // 연산자인 경우
+                    let b = stack.pop(); // 두 번째 피연산자
+                    let a = stack.pop(); // 첫 번째 피연산자
+                    switch (token) {
+                        case '+':
+                            stack.push(a + b); // 덧셈
+                            break;
+                        case '-':
+                            stack.push(a - b); // 뺄셈
+                            break;
+                        case '*':
+                            stack.push(a * b); // 곱셈
+                            break;
+                        case '/':
+                            if (b === 0) {
+                                // 나누는 수가 0인 경우, 오류 발생
+                                throw new Error("0으로 나눌 수 없습니다");
+                            }
+                            stack.push(a / b); // 나눗셈
+                            break;
+                    }
+                }
+            }
+
+            return stack[0]; // 최종 결과 반환
+        }
+
+
+        function clearExpression() {
+            document.getElementById("expression").value = "";
+            document.getElementById("result").value = "";
+        }
+
+        function toggleSize() {
+            const container = document.getElementsByClassName("container")[0];
+            const button = document.querySelector(".header > div > button:nth-child(2)");
+
+            if (toggle) {
+                container.style.width = "500px";
+                container.style.height = "600px";
+                button.textContent = "ㅁ";//작은 스크린일때 나타낼 글자
+            } else {
+                container.style.width = "100vw";
+                container.style.height = "100vh";
+                button.textContent = "◻"; // 큰 스크린일때 나타낼 글자
+            }
+
+            toggle = !toggle;
+        }
+
+    </script>
+</head>
+<body>
+<div class="background">
+    <div class="container">
+        <div class="header">
+            <div>
+                <h3 style="color: white; margin-left: 15px">CALCULATOR</h3>
+            </div>
+            <div>
+                <button>-</button>
+                <button onclick="toggleSize()">ㅁ</button>
+                <button>X</button>
+            </div>
+        </div>
+        <div class="body">
+            <div>
+                <input type="button" value="(" onclick="updateExpression('(')" class="button">
+                <input type="button" value=")" onclick="updateExpression(')')" class="button">
+                <input type="button" value="+" onclick="updateExpression('+')" class="button">
+                <input type="button" value="-" onclick="updateExpression('-')" class="button">
+                <input type="button" value="*" onclick="updateExpression('*')" class="button">
+                <input type="button" value="/" onclick="updateExpression('/')" class="button">
+            </div>
+
+            <input type="text" id="expression" class="input-field">
+
+            <button onclick="calculate()">RESULT</button>
+            <input id="result" class="input-field" readonly>
+            <button onclick="clearExpression()">REPLACE</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
