@@ -43,7 +43,10 @@
         .background{
             width: 100vw;
             height: 100vh;
-            background: gray;
+            background-image: url("https://images7.alphacoders.com/116/1161622.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
         }
         .container{
             width: 500px;
@@ -60,6 +63,7 @@
             border-left: 3px solid white;
             border-right: 3px solid darkgray;
             border-bottom: 3px solid darkgray;
+            display: none; /* Hide the calculator initially */
         }
         .header{
             width: calc(100% - 12px);
@@ -125,6 +129,45 @@
             border-right: 3px solid darkgray;
             border-bottom: 3px solid darkgray;
             margin-bottom: 10px;
+        }
+        footer{
+            width: 100vw;
+            height: 50px;
+            background: lightgray;
+            position:absolute;
+            bottom: 0px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+            flex-direction: row;
+        }
+        footer>button{
+            width: 90px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-right: 3px solid darkgray;
+            border-bottom: 3px solid darkgray;
+            border-top: 3px solid white;
+            border-left: 3px solid white;
+            gap:10px;
+        }
+        .calculatorButton{
+            width: 90px;
+            height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            border: none;
+            background: none;
+
+        }
+        .calculatorButton:active{
+            border: none;
+            background: none;
         }
     </style>
     <script>
@@ -267,10 +310,26 @@
             toggle = !toggle;
         }
 
+        // Function to show the calculator
+        function showCalculator() {
+            const container = document.getElementsByClassName("container")[0];
+            container.style.display = "flex";
+        }
+
+        // Function to hide the calculator
+        function hideCalculator() {
+            const container = document.getElementsByClassName("container")[0];
+            container.style.display = "none";
+        }
+
     </script>
 </head>
 <body>
 <div class="background">
+    <button class="calculatorButton" onclick="showCalculator()">
+        <img src="http://www.rw-designer.com/icon-view/20077.png">
+        <p>CALCULATE</p>
+    </button>
     <div class="container">
         <div class="header">
             <div>
@@ -279,7 +338,7 @@
             <div>
                 <button>-</button>
                 <button onclick="toggleSize()">ㅁ</button>
-                <button>X</button>
+                <button onclick="hideCalculator()">X</button>
             </div>
         </div>
         <div class="body">
@@ -299,6 +358,12 @@
             <button onclick="clearExpression()">REPLACE</button>
         </div>
     </div>
+    <footer>
+        <button>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Windows_logo_-_1992.svg/800px-Windows_logo_-_1992.svg.png" width="30px" height="30px">
+            start
+        </button>
+    </footer>
 </div>
 </body>
 </html>
